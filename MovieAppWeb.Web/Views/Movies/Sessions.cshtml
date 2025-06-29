@@ -1,0 +1,44 @@
+@model IEnumerable<MovieAppWeb.Web.Models.Session>
+@{
+    var movie = ViewBag.Movie as MovieAppWeb.Web.Models.Movie;
+    ViewData["Title"] = $"{movie.Title} - Seanslar";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <img src="@movie.ImagePath" class="img-fluid rounded" alt="@movie.Title">
+        </div>
+        <div class="col-md-8">
+            <h2>@movie.Title</h2>
+            <p>@movie.Description</p>
+            <p>
+                <strong>Süre:</strong> @movie.Duration dakika<br>
+                <strong>Vizyona Giriş:</strong> @movie.ReleaseDate.ToShortDateString()
+            </p>
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+    <h3>Seanslar</h3>
+    <div class="row">
+        @foreach (var session in Model)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@session.ShowTime.ToString("dd.MM.yyyy HH:mm")</h5>
+                        <p class="card-text">
+                            <strong>Salon:</strong> @session.Hall.Name<br>
+                            <strong>Fiyat:</strong> @session.Price.ToString("C")
+                        </p>
+                        <a href="@Url.Action("Book", "Movies", new { id = session.Id })" class="btn btn-primary">
+                            Bilet Al
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div> 

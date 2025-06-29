@@ -1,0 +1,51 @@
+@model MovieAppWeb.Web.Models.Session
+
+@{
+    ViewData["Title"] = "Yeni Seans";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <h1>Yeni Seans</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                
+                <div class="form-group">
+                    <label asp-for="MovieId" class="control-label">Film</label>
+                    <select asp-for="MovieId" class="form-control" asp-items="ViewBag.MovieId"></select>
+                    <span asp-validation-for="MovieId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="HallId" class="control-label">Salon</label>
+                    <select asp-for="HallId" class="form-control" asp-items="ViewBag.HallId"></select>
+                    <span asp-validation-for="HallId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ShowTime" class="control-label">Gösterim Zamanı</label>
+                    <input asp-for="ShowTime" class="form-control" type="datetime-local" />
+                    <span asp-validation-for="ShowTime" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Price" class="control-label">Fiyat</label>
+                    <input asp-for="Price" class="form-control" type="number" step="0.01" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mt-3">
+                    <input type="submit" value="Oluştur" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-secondary">Listeye Dön</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

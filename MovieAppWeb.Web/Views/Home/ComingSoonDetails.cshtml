@@ -1,0 +1,203 @@
+@model MovieAppWeb.Web.Models.ComingSoonMovie
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="movie-poster">
+                @if (!string.IsNullOrEmpty(Model.ImagePath))
+                {
+                    <img src="~/files/@Model.ImagePath" class="img-fluid rounded shadow" alt="@Model.Title">
+                }
+                else
+                {
+                    <img src="~/img/placeholder.jpg" class="img-fluid rounded shadow" alt="@Model.Title">
+                }
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="movie-details">
+                <h1 class="movie-title mb-4">@Model.Title</h1>
+                
+                <div class="movie-meta mb-4">
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="meta-item">
+                            <i class="bi bi-calendar-event"></i>
+                            <span>Vizyon Tarihi: @Model.ReleaseDate.ToString("dd.MM.yyyy")</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="bi bi-clock"></i>
+                            <span>Süre: @Model.Duration dakika</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="bi bi-film"></i>
+                            <span>Tür: @Model.Genre</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="movie-description mb-4">
+                    <h3 class="section-title">Film Hakkında</h3>
+                    <p>@Html.Raw(Model.Description)</p>
+                </div>
+
+                <div class="countdown-timer mb-4">
+                    <h3 class="section-title">Vizyona Girene Kalan Süre</h3>
+                    <div class="timer-container">
+                        <div class="timer-item">
+                            <span class="timer-value" id="days">00</span>
+                            <span class="timer-label">Gün</span>
+                        </div>
+                        <div class="timer-item">
+                            <span class="timer-value" id="hours">00</span>
+                            <span class="timer-label">Saat</span>
+                        </div>
+                        <div class="timer-item">
+                            <span class="timer-value" id="minutes">00</span>
+                            <span class="timer-label">Dakika</span>
+                        </div>
+                        <div class="timer-item">
+                            <span class="timer-value" id="seconds">00</span>
+                            <span class="timer-label">Saniye</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="movie-actions">
+                    <a href="@Url.Action("ComingSoon", "Home", new {area=""})" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left"></i> Geri Dön
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .movie-poster img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+    }
+
+    .movie-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background-color: #0d6efd;
+    }
+
+    .movie-meta {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 10px;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #666;
+    }
+
+    .meta-item i {
+        color: #0d6efd;
+    }
+
+    .movie-description {
+        line-height: 1.8;
+        color: #444;
+    }
+
+    .timer-container {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    .timer-item {
+        background-color: #0d6efd;
+        color: white;
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+        min-width: 100px;
+    }
+
+    .timer-value {
+        display: block;
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .timer-label {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .movie-actions {
+        margin-top: 2rem;
+    }
+
+    .btn-outline-primary {
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Geri sayım için hedef tarih
+        const releaseDate = new Date('@Model.ReleaseDate.ToString("yyyy-MM-dd")').getTime();
+
+        // Her saniye güncelle
+        const timer = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = releaseDate - now;
+
+            // Gün, saat, dakika ve saniye hesapla
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Değerleri güncelle
+            document.getElementById("days").textContent = String(days).padStart(2, '0');
+            document.getElementById("hours").textContent = String(hours).padStart(2, '0');
+            document.getElementById("minutes").textContent = String(minutes).padStart(2, '0');
+            document.getElementById("seconds").textContent = String(seconds).padStart(2, '0');
+
+            // Süre dolduğunda
+            if (distance < 0) {
+                clearInterval(timer);
+                document.getElementById("days").textContent = "00";
+                document.getElementById("hours").textContent = "00";
+                document.getElementById("minutes").textContent = "00";
+                document.getElementById("seconds").textContent = "00";
+            }
+        }, 1000);
+    </script>
+} 

@@ -1,0 +1,108 @@
+@model IEnumerable<MovieAppWeb.Web.Models.ComingSoonMovie>
+@{
+    ViewData["Title"] = "Yakında Gelecek Filmler";
+}
+
+<div class="container py-5">
+    <h1 class="section-title mb-5">Yakında Gelecek Filmler</h1>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var movie in Model)
+        {
+            <div class="col">
+                <div class="card h-100 movie-card">
+                    <div class="position-relative">
+                        @if (!string.IsNullOrEmpty(movie.ImagePath))
+                        {
+                            <img src="~/files/@movie.ImagePath" class="card-img-top" alt="@movie.Title" style="height: 400px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <img src="~/img/placeholder.jpg" class="card-img-top" alt="@movie.Title" style="height: 400px; object-fit: cover;">
+                        }
+                        <div class="card-img-overlay d-flex flex-column justify-content-end">
+                            <div class="movie-info">
+                                <h5 class="card-title text-white mb-0">@movie.Title</h5>
+                                <p class="card-text text-white-50">
+                                    <small>@movie.ReleaseDate.ToString("dd.MM.yyyy")</small>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">@(Html.Raw(movie.Description).ToString().Length > 150 ? Html.Raw(movie.Description.Substring(0, 150)) + "..." : Html.Raw(movie.Description))</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary">@movie.Genre</span>
+                            <small class="text-muted">@movie.Duration dk</small>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <a href="@Url.Action("ComingSoonDetails", "Home", new {area="", id = movie.Id })" class="btn btn-primary w-100">Detayları Gör</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 600;
+        color: #333;
+        position: relative;
+        padding-bottom: 1rem;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100px;
+        height: 4px;
+        background-color: #0d6efd;
+    }
+
+    .movie-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .movie-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+
+    .card-img-overlay {
+        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    }
+
+    .movie-info {
+        background: rgba(0,0,0,0.7);
+        padding: 1rem;
+        border-radius: 10px;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .card-footer {
+        padding: 1rem;
+    }
+
+    .btn-primary {
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+</style> 

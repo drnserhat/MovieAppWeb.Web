@@ -1,0 +1,55 @@
+@model MovieAppWeb.Web.Models.ComingSoonMovie
+@{
+    ViewData["Title"] = "Film Sil";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Film Sil</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <h4>Bu filmi silmek istediğinizden emin misiniz?</h4>
+                        <p>Bu işlem geri alınamaz.</p>
+                    </div>
+
+                    <dl class="row">
+                        <dt class="col-sm-3">Film Adı</dt>
+                        <dd class="col-sm-9">@Model.Title</dd>
+
+                        <dt class="col-sm-3">Vizyon Tarihi</dt>
+                        <dd class="col-sm-9">@Model.ReleaseDate.ToString("dd.MM.yyyy")</dd>
+
+                        <dt class="col-sm-3">Tür</dt>
+                        <dd class="col-sm-9">@Model.Genre</dd>
+
+                        <dt class="col-sm-3">Süre</dt>
+                        <dd class="col-sm-9">@Model.Duration dakika</dd>
+
+                        <dt class="col-sm-3">Durum</dt>
+                        <dd class="col-sm-9">
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">Aktif</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Pasif</span>
+                            }
+                        </dd>
+                    </dl>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <button type="submit" class="btn btn-danger">Sil</button>
+                        <a asp-action="Index" class="btn btn-secondary">Geri Dön</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

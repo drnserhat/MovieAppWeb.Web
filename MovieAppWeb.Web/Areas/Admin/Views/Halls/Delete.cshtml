@@ -1,0 +1,49 @@
+@model MovieAppWeb.Web.Models.Hall
+@{
+    ViewData["Title"] = "Salon Sil";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Salon Sil</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <h4>Bu salonu silmek istediğinizden emin misiniz?</h4>
+                        <p>Bu işlem geri alınamaz.</p>
+                    </div>
+
+                    <dl class="row">
+                        <dt class="col-sm-3">Salon Adı</dt>
+                        <dd class="col-sm-9">@Model.Name</dd>
+
+                        <dt class="col-sm-3">Kapasite</dt>
+                        <dd class="col-sm-9">@Model.Capacity</dd>
+
+                        <dt class="col-sm-3">Durum</dt>
+                        <dd class="col-sm-9">
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">Aktif</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Pasif</span>
+                            }
+                        </dd>
+                    </dl>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <button type="submit" class="btn btn-danger">Sil</button>
+                        <a asp-action="Index" class="btn btn-secondary">Geri Dön</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

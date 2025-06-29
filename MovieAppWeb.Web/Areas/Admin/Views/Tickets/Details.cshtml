@@ -1,0 +1,57 @@
+@model MovieAppWeb.Web.Models.Ticket
+@{
+    ViewData["Title"] = "Bilet Detayı";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Bilet Detayı</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Film</dt>
+                        <dd class="col-sm-9">@Model.Session.Movie.Title</dd>
+
+                        <dt class="col-sm-3">Salon</dt>
+                        <dd class="col-sm-9">@Model.Session.Hall.Name</dd>
+
+                        <dt class="col-sm-3">Seans Tarihi</dt>
+                        <dd class="col-sm-9">@Model.Session.ShowTime.ToString("dd.MM.yyyy HH:mm")</dd>
+
+                        <dt class="col-sm-3">Koltuk No</dt>
+                        <dd class="col-sm-9">@Model.SeatNumber</dd>
+
+                        <dt class="col-sm-3">Kullanıcı</dt>
+                        <dd class="col-sm-9">@Model.User.Username</dd>
+
+                        <dt class="col-sm-3">Satın Alma Tarihi</dt>
+                        <dd class="col-sm-9">@Model.PurchaseDate.ToString("dd.MM.yyyy HH:mm")</dd>
+
+                        <dt class="col-sm-3">Fiyat</dt>
+                        <dd class="col-sm-9">@Model.Price.ToString("C")</dd>
+
+                        <dt class="col-sm-3">Durum</dt>
+                        <dd class="col-sm-9">
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">Aktif</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">İptal</span>
+                            }
+                        </dd>
+                    </dl>
+
+                    <div>
+                        <a asp-action="Index" class="btn btn-secondary">Geri Dön</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

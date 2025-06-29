@@ -1,0 +1,351 @@
+@model MovieAppWeb.Web.Models.Session
+@{
+    ViewData["Title"] = "Koltuk Seçimi";
+}
+
+<div class="container my-4">
+    <h2 class="text-center mb-4">@Model.Movie.Title - @Model.ShowTime.ToString("dd.MM.yyyy HH:mm")</h2>
+    <form asp-controller="Tickets" asp-area="" asp-action="Purchase" method="post">
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3 shadow-sm">
+                <div class="card-header text-center bg-secondary text-white">Sahne</div>
+                <div class="card-body">
+                    <div class="hall-layout text-center p-3">
+                        @{
+                            int totalSeats = Model.Hall.Capacity;
+                            int seatsPerRow = 6;
+                            var occupiedSeats = ViewBag.OccupiedSeats as List<int> ?? new List<int>();
+                        }
+
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                            <input type="hidden" name="sessionId" value="@Model.Id" />
+
+                            @for (int row = 0; row < totalSeats / seatsPerRow; row++)
+                            {
+                                <div class="seat-row mb-2 d-flex justify-content-center align-items-center">
+                                    <span class="me-2 fw-bold">@((char)('A' + row))</span>
+                                    @for (int seat = 1; seat <= seatsPerRow; seat++)
+                                    {
+                                        int currentSeatNumber = (row * seatsPerRow) + seat;
+                                        var isOccupied = occupiedSeats.Contains(currentSeatNumber);
+                                        var seatClass = "btn-success"; // Varsayılan renk yeşil
+
+                                        if (isOccupied)
+                                        {
+                                            var ticket = Model.Tickets.FirstOrDefault(t => t.SeatNumber == currentSeatNumber);
+                                            if (ticket != null)
+                                            {
+                                                if (ticket.Gender?.ToLower() == "male")
+                                                {
+                                                    seatClass = "btn-primary"; // Erkek için mavi
+                                                }
+                                                else if (ticket.Gender?.ToLower() == "female")
+                                                {
+                                                    seatClass = "btn-danger"; // Kadın için kırmızı
+                                                }
+                                                else
+                                                {
+                                                    seatClass = "btn-danger"; // Boş veya tanımsız için kırmızı
+                                                }
+                                            }
+                                        }
+
+                                        <button type="button" class="btn @seatClass btn-sm seat-button m-1" data-seat-number="@currentSeatNumber" data-is-occupied="@isOccupied" @(isOccupied ? "disabled" : "")>
+                                            @seat
+                                            <div class="seat-gender-icon"></div>
+                                        </button>
+                                    }
+                                </div>
+                            }
+
+                            @{
+                                int remainingSeats = totalSeats % seatsPerRow;
+                                if (remainingSeats > 0)
+                                {
+                                    <div class="seat-row mb-2 d-flex justify-content-center align-items-center">
+                                        <span class="me-2 fw-bold">@((char)('A' + (totalSeats / seatsPerRow)))</span>
+                                        @for (int seat = 1; seat <= remainingSeats; seat++)
+                                        {
+                                            int currentSeatNumber = (totalSeats / seatsPerRow * seatsPerRow) + seat;
+                                            var isOccupied = occupiedSeats.Contains(currentSeatNumber);
+                                            var seatClass = "btn-success"; // Varsayılan renk yeşil
+
+                                            if (isOccupied)
+                                            {
+                                                var ticket = Model.Tickets.FirstOrDefault(t => t.SeatNumber == currentSeatNumber);
+                                                if (ticket != null)
+                                                {
+                                                    if (ticket.Gender?.ToLower() == "male")
+                                                    {
+                                                        seatClass = "btn-primary"; // Erkek için mavi
+                                                    }
+                                                    else if (ticket.Gender?.ToLower() == "female")
+                                                    {
+                                                        seatClass = "btn-danger"; // Kadın için kırmızı
+                                                    }
+                                                    else
+                                                    {
+                                                        seatClass = "btn-danger"; // Boş veya tanımsız için kırmızı
+                                                    }
+                                                }
+                                            }
+
+                                            <button type="button" class="btn @seatClass btn-sm seat-button m-1" data-seat-number="@currentSeatNumber" data-is-occupied="@isOccupied" @(isOccupied ? "disabled" : "")>
+                                                @seat
+                                                <div class="seat-gender-icon"></div>
+                                            </button>
+                                        }
+                                    </div>
+                                }
+                            }
+
+                            <div id="selectedSeatsContainer"></div>
+
+                       
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ panel: Film bilgisi + Fiyat -->
+        <div class="col-md-4">
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body text-center">
+                    <img src="@Url.Content("~/files/" + Model.Movie.ImagePath)" class="img-fluid mb-3 rounded" alt="@Model.Movie.Title">
+                    <p class="text-start"><strong>Dakika:</strong> @Html.Raw(Model.Movie.Description)</p>
+                    <p class="text-start"><strong>Dakika:</strong> @Model.Movie.Duration dakika</p>
+                    <p class="text-start fs-5 fw-bold text-primary"><strong>Ücret:</strong> @Model.Price.ToString("C") TL</p>
+                </div>
+            </div>
+                <!-- Mısır Seçimi -->
+                <div class="card mt-3 shadow-sm">
+                    <div class="card-header">Mısır Seçimi</div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="form-group mb-2">
+                                <label class="form-label">Küçük Boy - 25 TL</label>
+                                <input type="number" class="form-control form-control-sm popcorn-quantity" name="popcornQuantities[kucuk]" data-size="kucuk" min="0" value="0" style="width: 100px;">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label class="form-label">Orta Boy - 35 TL</label>
+                                <input type="number" class="form-control form-control-sm popcorn-quantity" name="popcornQuantities[orta]" data-size="orta" min="0" value="0" style="width: 100px;">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label class="form-label">Büyük Boy - 45 TL</label>
+                                <input type="number" class="form-control form-control-sm popcorn-quantity" name="popcornQuantities[buyuk]" data-size="buyuk" min="0" value="0" style="width: 100px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+             
+            <div class="card mt-3 shadow-sm">
+                <div class="card-header">Toplam Tutar</div>
+                <div class="card-body">
+                    <p class="fs-4 fw-bold text-primary" id="totalPrice">0.00 TL</p>
+                </div>
+            </div>
+                <!-- Butonlar -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <form asp-action="Purchase" method="post">
+                            <input type="hidden" name="sessionId" value="@Model.Id" />
+                            <input type="hidden" name="selectedSeats" id="selectedSeats" />
+                            <input type="hidden" name="seatGenders" id="seatGenders" />
+                            <input type="hidden" name="popcornQuantities[kucuk]" value="@(ViewBag.PopcornQuantities != null ? ViewBag.PopcornQuantities["kucuk"] : 0)" />
+                            <input type="hidden" name="popcornQuantities[orta]" value="@(ViewBag.PopcornQuantities != null ? ViewBag.PopcornQuantities["orta"] : 0)" />
+                            <input type="hidden" name="popcornQuantities[buyuk]" value="@(ViewBag.PopcornQuantities != null ? ViewBag.PopcornQuantities["buyuk"] : 0)" />
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                Ödeme Yap (@Model.Price.ToString("C"))
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <a asp-action="Index" asp-controller="Sessions" class="btn btn-secondary btn-lg w-100">Geri Dön</a>
+                    </div>
+                </div>
+        </div>
+    </div>
+    </form>
+</div>
+
+<style>
+    .seat-button {
+        position: relative;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .seat-gender-icon {
+        font-size: 12px;
+        margin-top: 2px;
+    }
+
+    .seat-button.btn-primary .seat-gender-icon::before {
+        content: "♂";
+        color: white;
+    }
+
+    .seat-button.btn-danger .seat-gender-icon::before {
+        content: "♀";
+        color: white;
+    }
+
+    .seat-button.btn-success .seat-gender-icon::before {
+        content: "";
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var selectedSeats = [];
+            var ticketPrice = @Model.Price.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            var popcornPrices = {
+                kucuk: 25,
+                orta: 35,
+                buyuk: 45
+            };
+            var popcornQuantities = {
+                kucuk: 0,
+                orta: 0,
+                buyuk: 0
+            };
+            var seatGenders = {};
+
+            function updateTotalPrice() {
+                var total = (selectedSeats.length * ticketPrice);
+                for (var size in popcornQuantities) {
+                    total += (popcornQuantities[size] * popcornPrices[size]);
+                }
+                $('#totalPrice').text(total.toFixed(2) + ' TL');
+            }
+
+            $('.popcorn-quantity').on('change', function() {
+                var size = $(this).data('size');
+                popcornQuantities[size] = parseInt($(this).val()) || 0;
+                updateTotalPrice();
+            });
+
+            $('.seat-button:not([disabled])').on('click', function () {
+                var seatNumber = $(this).data('seat-number');
+                var index = selectedSeats.indexOf(seatNumber);
+
+                if (index === -1) {
+                    // Cinsiyet seçimi modalını göster
+                    $('#genderModal').modal('show');
+                    $('#genderModal').data('seat-number', seatNumber);
+                    $('#genderModal').data('button', $(this));
+                } else {
+                    selectedSeats.splice(index, 1);
+                    delete seatGenders[seatNumber];
+                    $(this).removeClass('btn-warning btn-primary btn-danger').addClass('btn-success');
+                }
+
+                var container = $('#selectedSeatsContainer');
+                container.empty();
+
+                selectedSeats.forEach(function (seat) {
+                    container.append(
+                        $('<input>', {
+                            type: 'hidden',
+                            name: 'selectedSeats',
+                            value: seat
+                        })
+                    );
+                    container.append(
+                        $('<input>', {
+                            type: 'hidden',
+                            name: 'seatGenders',
+                            value: seatGenders[seat]
+                        })
+                    );
+                });
+
+                $('#purchaseButton').prop('disabled', selectedSeats.length === 0);
+                updateTotalPrice();
+            });
+
+            // Cinsiyet seçimi modalı için event handler
+            $('#confirmGender').on('click', function() {
+                var seatNumber = $('#genderModal').data('seat-number');
+                var button = $('#genderModal').data('button');
+                var gender = $('input[name="gender"]:checked').val();
+
+                if (gender) {
+                    selectedSeats.push(seatNumber);
+                    seatGenders[seatNumber] = gender;
+                    
+                    // Koltuk rengini cinsiyete göre değiştir
+                    button.removeClass('btn-success btn-warning');
+                    if (gender === 'male') {
+                        button.addClass('btn-primary');
+                    } else {
+                        button.addClass('btn-danger');
+                    }
+
+                    var container = $('#selectedSeatsContainer');
+                    container.empty();
+
+                    selectedSeats.forEach(function (seat) {
+                        container.append(
+                            $('<input>', {
+                                type: 'hidden',
+                                name: 'selectedSeats',
+                                value: seat
+                            })
+                        );
+                        container.append(
+                            $('<input>', {
+                                type: 'hidden',
+                                name: 'seatGenders',
+                                value: seatGenders[seat]
+                            })
+                        );
+                    });
+
+                    $('#purchaseButton').prop('disabled', selectedSeats.length === 0);
+                    updateTotalPrice();
+                    $('#genderModal').modal('hide');
+                }
+            });
+        });
+    </script>
+}
+
+<!-- Cinsiyet Seçimi Modalı -->
+<div class="modal fade" id="genderModal" tabindex="-1" aria-labelledby="genderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="genderModalLabel">Cinsiyet Seçimi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="gender" id="genderMale" value="male">
+                    <label class="form-check-label" for="genderMale">
+                        Erkek
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="gender" id="genderFemale" value="female">
+                    <label class="form-check-label" for="genderFemale">
+                        Kadın
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" id="confirmGender">Onayla</button>
+            </div>
+        </div>
+    </div>
+</div>

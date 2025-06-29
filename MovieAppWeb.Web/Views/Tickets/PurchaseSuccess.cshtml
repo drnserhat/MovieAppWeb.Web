@@ -1,0 +1,68 @@
+@model MovieAppWeb.Web.Models.Ticket
+
+@{
+    ViewData["Title"] = "Ödeme Başarılı";
+    Layout = "_Layout";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h2 class="card-title mb-4">Ödeme Başarılı!</h2>
+                    
+                    <div class="alert alert-success">
+                        <p class="mb-0">Biletiniz başarıyla satın alındı.</p>
+                    </div>
+
+                    <div class="ticket-details mt-4">
+                        <h4>Bilet Detayları</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Film:</strong> @Model.Session.Movie.Title</p>
+                                <p><strong>Salon:</strong> @Model.Session.Hall.Name</p>
+                                <p><strong>Koltuk:</strong> @Model.SeatNumber</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Tarih:</strong> @Model.Session.ShowTime.ToString("dd.MM.yyyy")</p>
+                                <p><strong>Saat:</strong> @Model.Session.ShowTime.ToString("HH:mm")</p>
+                                <p><strong>Bilet No:</strong> @Model.PaymentReference</p>
+                            </div>
+                        </div>
+                        @if (Model.PopcornQuantity > 0)
+                        {
+                            <div class="mt-3">
+                                <p><strong>Mısır:</strong> @Model.PopcornQuantity adet @Model.PopcornSize boy</p>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="mt-4">
+                        <a asp-action="MyTickets" asp-area="" class="btn btn-primary">Biletlerime Git</a>
+                        <a asp-controller="Home" asp-action="Index" asp-area="" class="btn btn-secondary">Ana Sayfaya Dön</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .ticket-details {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+    }
+    
+    .bi-check-circle-fill {
+        color: #28a745;
+    }
+</style> 

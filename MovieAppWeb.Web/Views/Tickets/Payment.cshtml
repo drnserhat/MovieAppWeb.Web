@@ -1,0 +1,103 @@
+@model List<MovieAppWeb.Web.Models.Ticket>
+
+@{
+    ViewData["Title"] = "Ödeme";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Ödeme Bilgileri</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="ProcessPayment" asp-area="" method="post">
+                        <input type="hidden" name="ticketIds" value="@string.Join(",", Model.Select(t => t.Id))" />
+                        
+                        <div class="form-group mb-3">
+                            <label for="cardName">Kart Üzerindeki İsim</label>
+                            <input type="text" class="form-control" id="cardName" name="cardName" required>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="cardNumber">Kart Numarası</label>
+                            <input type="text" class="form-control" id="cardNumber" name="cardNumber" 
+                                   pattern="[0-9]{16}" maxlength="16" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="expiryDate">Son Kullanma Tarihi</label>
+                                    <input type="text" class="form-control" id="expiryDate" name="expiryDate" 
+                                           placeholder="AA/YY" pattern="(0[1-9]|1[0-2])\/([0-9]{2})" maxlength="5" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="cvv">CVV</label>
+                                    <input type="text" class="form-control" id="cvv" name="cvv" 
+                                           pattern="[0-9]{3}" maxlength="3" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Ödemeyi Tamamla</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Bilet Detayları</h4>
+                </div>
+                <div class="card-body">
+                    @foreach (var ticket in Model)
+                    {
+                        <div class="ticket-details mb-3">
+                            <h5>@ticket.Session.Movie.Title</h5>
+                            <p class="mb-1">Salon: @ticket.Session.Hall.Name</p>
+                            <p class="mb-1">Koltuk: @ticket.SeatNumber</p>
+                            <p class="mb-1">Tarih: @ticket.Session.ShowTime.ToString("dd.MM.yyyy")</p>
+                            <p class="mb-1">Saat: @ticket.Session.ShowTime.ToString(@"hh\:mm")</p>
+                            @if (!string.IsNullOrEmpty(ticket.PopcornSize))
+                            {
+                                <p class="mb-1">Mısır: @ticket.PopcornSize (@ticket.PopcornQuantity adet)</p>
+                            }
+                            <p class="mb-1">Fiyat: @ticket.Price.ToString("C")</p>
+                            <hr />
+                        </div>
+                    }
+                    <div class="total-price">
+                        <h5>Toplam Tutar: @Model.Sum(t => t.Price).ToString("C")</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Kart numarası formatı
+        document.getElementById('cardNumber').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // Son kullanma tarihi formatı
+        document.getElementById('expiryDate').addEventListener('input', function(e) {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0,2) + '/' + value.substring(2);
+            }
+            this.value = value;
+        });
+
+        // CVV formatı
+        document.getElementById('cvv').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    </script>
+} 

@@ -1,0 +1,85 @@
+@model IEnumerable<MovieAppWeb.Web.Models.Ticket>
+
+@{
+    ViewData["Title"] = "Biletlerim";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <h2>Biletlerim</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Henüz biletiniz bulunmamaktadır.
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var ticket in Model)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">
+                                @ticket.Session.Movie.Title
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Salon:</strong> @ticket.Session.Hall.Name</p>
+                                    <p><strong>Koltuk:</strong> @ticket.SeatNumber</p>
+                                    <p><strong>Cinsiyet:</strong> @(ticket.Gender == "Male" ? "Erkek" : "Kadın")</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Tarih:</strong> @ticket.Session.ShowTime.ToString("dd.MM.yyyy")</p>
+                                    <p><strong>Saat:</strong> @ticket.Session.ShowTime.ToString("HH:mm")</p>
+                                    <p><strong>Fiyat:</strong> @ticket.Price.ToString("C")</p>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(ticket.PopcornSize))
+                            {
+                                <div class="mt-3">
+                                    <p><strong>Mısır:</strong> @ticket.PopcornQuantity adet @ticket.PopcornSize boy</p>
+                                </div>
+                            }
+                            <div class="mt-3">
+                                <span class="badge @(ticket.IsPaid ? "bg-success" : "bg-warning")">
+                                    @(ticket.IsPaid ? "Ödendi" : "Ödenmedi")
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">
+                                Satın Alma Tarihi: @ticket.PurchaseDate.ToString("dd.MM.yyyy HH:mm")
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+
+    <style>
+        .card {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            border-bottom: none;
+        }
+        
+        .badge {
+            font-size: 0.9em;
+            padding: 0.5em 1em;
+        }
+    </style>

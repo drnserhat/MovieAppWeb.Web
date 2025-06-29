@@ -1,0 +1,110 @@
+@model MovieAppWeb.Web.Models.Session
+@{
+    ViewData["Title"] = "Koltuk Seçimi";
+    var bookedSeats = ViewBag.BookedSeats as List<int>;
+    var totalSeats = ViewBag.TotalSeats;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>Koltuk Seçimi</h2>
+            <p>
+                <strong>Film:</strong> @Model.Movie.Title<br>
+                <strong>Seans:</strong> @Model.ShowTime.ToString("dd.MM.yyyy HH:mm")<br>
+                <strong>Salon:</strong> @Model.Hall.Name<br>
+                <strong>Fiyat:</strong> @Model.Price.ToString("C")
+            </p>
+
+            <div class="screen mb-4">
+                <div class="screen-text">PERDE</div>
+            </div>
+
+            <div class="seats-container">
+                @for (int i = 1; i <= totalSeats; i++)
+                {
+                    var isBooked = bookedSeats.Contains(i);
+                    <button type="button" 
+                            class="seat @(isBooked ? "booked" : "")" 
+                            data-seat="@i"
+                            @(isBooked ? "disabled" : "")>
+                        @i
+                    </button>
+                }
+            </div>
+
+            <div class="mt-4">
+                <form id="bookingForm" method="post" action="@Url.Action("Book", "Movies", new { id = Model.Id })">
+                    <input type="hidden" id="seatNumber" name="seatNumber" />
+                    <button type="submit" class="btn btn-primary" id="bookButton" disabled>
+                        Bilet Al
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .screen {
+        background: #ccc;
+        height: 70px;
+        width: 100%;
+        margin: 15px 0;
+        transform: rotateX(-30deg);
+        box-shadow: 0 3px 10px rgba(255,255,255,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .screen-text {
+        color: #333;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .seats-container {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 10px;
+        margin: 20px 0;
+    }
+
+    .seat {
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 5px;
+        background-color: #444;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .seat:hover:not(.booked) {
+        background-color: #666;
+    }
+
+    .seat.selected {
+        background-color: #007bff;
+    }
+
+    .seat.booked {
+        background-color: #dc3545;
+        cursor: not-allowed;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.seat:not(.booked)').click(function() {
+                $('.seat').removeClass('selected');
+                $(this).addClass('selected');
+                $('#seatNumber').val($(this).data('seat'));
+                $('#bookButton').prop('disabled', false);
+            });
+        });
+    </script>
+} 

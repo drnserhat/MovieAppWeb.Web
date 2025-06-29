@@ -1,0 +1,356 @@
+﻿@model List<MovieAppWeb.Web.Models.Movie>
+@{
+    ViewData["Title"] = "Ana Sayfa";
+}
+<br />
+<div class="hero-section position-relative mb-5">
+    <div id="movieCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            @for (int i = 0; i < Math.Min(3, Model.Count); i++)
+            {
+                var movie = Model[i];
+                <div class="carousel-item @(i == 0 ? "active" : "")">
+                    <div class="hero-overlay"></div>
+                    <img src="~/files/@(string.IsNullOrEmpty(movie.ImagePath) ? "/images/default-movie.jpg" : movie.ImagePath)" 
+                         class="d-block w-100" alt="@movie.Title" style="height: 600px; object-fit: cover;">
+                    <div class="carousel-caption">
+                   
+                        <h1 class="display-4 fw-bold mb-3">@movie.Title</h1>
+                        <p class="lead mb-4">@Html.Raw(movie.Description)</p>
+                        <a href="@Url.Action("SelectSeats", "Tickets", new {area="", id = movie.Sessions?.FirstOrDefault()?.Id })"
+                           class="btn btn-primary btn-lg">Hemen Bilet Al</a>
+                    </div>
+                </div>
+            }
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#movieCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Önceki</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#movieCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Sonraki</span>
+        </button>
+    </div>
+</div>
+
+<div class="container">
+   
+    <div class="date-navigation mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="section-title mb-0">Vizyondaki Filmler</h2>
+            <div class="date-buttons">
+                @for (int i = 0; i < 7; i++)
+                {
+                    var date = DateTime.Now.AddDays(i);
+                    var isSelected = ViewBag.SelectedDate?.Date == date.Date;
+                    <a href="@Url.Action("Index","Home", new {area="" ,selectedDate = date.ToString("yyyy-MM-dd") })"
+                       class="btn @(isSelected ? "btn-primary" : "btn-outline-primary") date-btn">
+                        @date.ToString("ddd dd/MM")
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var movie in Model)
+        {
+            <div class="col">
+                <div class="movie-card">
+                    <a href="@Url.Action("Sessions", "Movies", new { id = movie.Id })">
+                        <img src="~/files/@movie.ImagePath" style="width:100%" alt="@movie.Title" class="movie-poster">
+                    </a>
+                    <div class="movie-info">
+                        <h3 class="movie-title">@movie.Title</h3>
+                        <div class="session-times">
+                            @foreach (var session in movie.Sessions?.OrderBy(s => s.ShowTime) ?? Enumerable.Empty<Session>())
+                            {
+                                <a href="@Url.Action("SelectSeats", "Tickets", new {area="", id = session.Id })" 
+                                   class="btn btn-outline-primary session-btn">
+                                    @session.ShowTime.ToString("HH:mm")
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <section class="coming-soon py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="section-title mb-0">Yakında Gelecek Filmler</h2>
+                <a href="@Url.Action("ComingSoon", "Home", new {area=""})" class="btn btn-outline-primary">
+                    Tümünü Gör <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            <div class="row">
+                @foreach (var movie in ViewBag.ComingSoonMovies)
+                {
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100 movie-card">
+                            <div class="position-relative">
+                                @if (!string.IsNullOrEmpty(movie.ImagePath))
+                                {
+                                    <img src="~/files/@movie.ImagePath" style="width:100%" class="card-img-top" alt="@movie.Title">
+                                }
+                                else
+                                {
+                                    <img src="~/img/placeholder.jpg" class="card-img-top" alt="@movie.Title">
+                                }
+                                <div class="card-img-overlay d-flex flex-column justify-content-end">
+                                    <div class="movie-info">
+                                        <h5 class="card-title text-white mb-0">@Html.Raw(movie.Title)</h5>
+                                        <p class="card-text text-white-50">
+                                            <small>@movie.ReleaseDate.ToString("dd.MM.yyyy")</small>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text text-truncate">@Html.Raw(movie.Description)</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-primary">@movie.Genre</span>
+                                    <small class="text-muted">@movie.Duration dk</small>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent border-0">
+                                <a href="@Url.Action("ComingSoonDetails", "Home", new {area="", id = movie.Id })" class="btn btn-primary w-100">Detayları Gör</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    .hero-section {
+        margin-top: -1.5rem;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8));
+    }
+
+    .carousel-caption {
+        bottom: 20%;
+        text-align: left;
+        left: 10%;
+        right: 10%;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #333;
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background-color: #0d6efd;
+    }
+
+    .offer-card {
+        background: #fff;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .offer-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .offer-icon {
+        font-size: 2.5rem;
+        color: #0d6efd;
+        margin-bottom: 1rem;
+    }
+
+    .discount-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: #0d6efd;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+
+    .date-buttons {
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+
+    .date-btn {
+        white-space: nowrap;
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+    }
+
+    .movie-card {
+        background: #fff;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .movie-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .movie-poster {
+        position: relative;
+        height: 400px;
+        overflow: hidden;
+    }
+
+    .movie-poster img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .movie-card:hover .movie-poster img {
+        transform: scale(1.05);
+    }
+
+    .movie-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 1rem;
+        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        color: white;
+    }
+
+    .movie-content {
+        padding: 1.5rem;
+    }
+
+    .movie-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+
+    .movie-description {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .session-times {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .session-btn {
+        border-radius: 20px;
+        padding: 0.25rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .coming-soon-card {
+        background: #fff;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .coming-soon-poster {
+        position: relative;
+        height: 300px;
+    }
+
+    .coming-soon-poster img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .release-date {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 0.5rem;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .release-date .day {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .release-date .month {
+        display: block;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+    }
+
+    .coming-soon-content {
+        padding: 1rem;
+    }
+
+    .coming-soon-content h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .coming-soon-content p {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    media (max-width: 768px) {
+        .carousel-caption {
+            bottom: 10%;
+        }
+
+        .carousel-caption h1 {
+            font-size: 2rem;
+        }
+
+        .date-buttons {
+            margin-top: 1rem;
+        }
+
+        .movie-poster {
+            height: 300px;
+        }
+    }
+</style>
+
